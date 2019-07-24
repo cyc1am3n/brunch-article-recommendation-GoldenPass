@@ -69,7 +69,7 @@ $ python item2vec.py
 $ python inference.py
 ```
 
-`inference.py` 를 실행시키면 test user가 읽을 100개의 글이 `recommend.txt` 로 저장되어 나옵니다.
+`inference.py` 를 실행시키면 test user가 읽을 100개의 글이`{데이터셋 폴더}/{hyp}/` (default='0_SUBMIT_FINAL_TEST') 폴더에 `recommend.txt` 로 저장되어 나옵니다.
 
 ### 4. 모델 설명
 
