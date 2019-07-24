@@ -64,7 +64,7 @@ def article_list_processing():
         article_by_user_t[key] = s
     return article_by_user , article_by_user_t 
 
-def make_dict():
+def make_dict(article_by_user_t):
     read = load_read_data(directory)
     atc_read_cnt_nn = article_processing(read)
     art_read_cnt_morethan_10 = atc_read_cnt_nn[atc_read_cnt_nn['read_cnt'] > 10]
@@ -110,7 +110,7 @@ def make_dict():
     with open(directory + 'id_to_word_recent.json','w') as f:
         json.dump(id_to_word,f)
 
-def make_corpus():
+def make_corpus( article_by_user_t):
     
 
     with open(directory + 'word_to_id_recent.json') as f:
@@ -191,7 +191,7 @@ def generate_batch(data, batch_size, num_skips, skip_window, data_index):
 def train(article_by_user, article_by_user_t):
     # Step 4: skip-gram 모델 구축
     # model 구축
-    make_dict()
+    make_dict(article_by_user_t)
 
     np.random.seed(1)
     tf.set_random_seed(1)
