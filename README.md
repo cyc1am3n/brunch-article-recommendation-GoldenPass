@@ -22,7 +22,7 @@ GoldenPass 팀의 카카오 아레나 "브런치 사용자를 위한 글 추천 
 Dependencies에 적혀있는 라이브러리가 이미 설치되어 있다면 건너뛰어도 됩니다.
 
 ```bash
-$ pip3 install -r requriements.txt
+$ pip3 install -r requirements.txt
 ```
 
 ### 2. 모델 만들기
