@@ -15,7 +15,20 @@ GoldenPass 팀의 카카오 아레나 "브런치 사용자를 위한 글 추천 
 
 ### 0. 데이터셋 경로 설정
 
-데이터셋이 `./res/` 이외에 위치한 경우는 `config.py` 를 수정하세요.
+데이터셋이 `./res/` 이외에 위치한 경우는 `config.py` 를 수정하세요.  
+데이터셋 폴더에 필요한 데이터는 다음과 같습니다.
+```
+res
+├── read
+│   ├── ...
+│   └── ...
+└── predict
+│   ├── dev.users
+│   └── test.users
+├── magazine.json
+├── metadata.json
+└── users.json
+```
 
 ### 1. 필요한 라이브러리 설치
 
