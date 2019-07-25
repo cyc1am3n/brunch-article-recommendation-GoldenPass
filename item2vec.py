@@ -2,7 +2,6 @@ import tensorflow as tf
 import collections
 from tqdm import tqdm
 import json
-import argparse
 import numpy as np
 import pandas as pd
 import random
@@ -200,7 +199,6 @@ def generate_batch(data, batch_size, num_skips, skip_window, data_index):
     return batch, labels, data_index
 
 def train(article_by_user, article_by_user_t):
-    # Step 4: skip-gram 모델 구축
     # model 구축
     make_dict(article_by_user_t)
 
@@ -210,8 +208,8 @@ def train(article_by_user, article_by_user_t):
     with open(directory + 'id_to_word_recent.json') as f:
         id_to_word = json.load(f)
 
-    vocabulary_size =(len(id_to_word)) ################################################# 수정해주기!!
-    batch_size = 128        # 일반적으로 16 <= batch_size <= 512
+    vocabulary_size =(len(id_to_word))
+    batch_size = 128       
     embedding_size = 128    # embedding vector 크기
     skip_window = 4         # target 양쪽의 단어 갯수
     num_skips = 8          # 컨텍스트로부터 생성할 레이블 갯수
@@ -257,7 +255,6 @@ def train(article_by_user, article_by_user_t):
     
     start_time = time.time()
     num_steps = 500001
-    #data = make_corpus()
     ordered_words = list(word_to_id.keys())
     with tf.Session() as session:
         session.run(tf.global_variables_initializer())
@@ -330,10 +327,6 @@ def get_similarity():
     return None
 
 if __name__ == '__main__':
-    parser = argparse.ArgumentParser()
-    # parser.add_argument()
-
-    args = parser.parse_args()
     article_by_user, article_by_user_t  = article_list_processing()
     train(article_by_user, article_by_user_t)
     get_similarity()
