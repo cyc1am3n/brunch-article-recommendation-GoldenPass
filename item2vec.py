@@ -7,6 +7,9 @@ import numpy as np
 import pandas as pd
 import random
 import math
+import os
+import time
+from datetime import datetime
 
 from database import load_read_data, extract_article_by_user, make_read_raw
 from utils import chainer
@@ -40,19 +43,27 @@ def article_processing_atc_read_cnt(read):
     return atc_read_cnt_nn
 
 def article_list_processing():
-    article_by_user = {}
-    article_by_user_t = dict()
-    read = load_read_data(directory)
-    # ITEM 2 VEC 을 위한 유저들이 최신에 읽은 글 처리
-    print('Extract history of users after 2/7 for item2vec.')
-    read = read[read['dt'] >= '20190207']
-    read_users = list(set(list(read['user_id'])))
-    
-    
-    for i in tqdm(range(len(read_users)), mininterval=5):
-        article_by_user[i] = extract_article_by_user(read, read_users[i])
+    fname = directory + 'recent_article_by_user.json'
+    if os.path.isfile(fname):
+        print('recent_article_by_user.json is already exists.')
+        with open(fname) as handle:
+            article_by_user = json.loads(handle.read())
+    else:
+        article_by_user = {}
 
- 
+        read = load_read_data(directory)
+        # ITEM 2 VEC 을 위한 유저들이 최신에 읽은 글 처리
+        print('Extract history of users after 2/7 for item2vec.')
+        read = read[read['dt'] >= '20190207']
+        read_users = list(set(list(read['user_id'])))
+
+        for i in tqdm(range(len(read_users)), mininterval=5):
+            article_by_user[i] = extract_article_by_user(read, read_users[i])
+
+        with open(directory + 'recent_article_by_user.json', 'w', encoding="utf-8") as make_file:
+            json.dump(article_by_user, make_file, ensure_ascii=False, indent="\t")
+
+    article_by_user_t = dict()
     for key, value in article_by_user.items():
         key = int(key)
         s = []
@@ -66,7 +77,7 @@ def article_list_processing():
 
 def make_dict(article_by_user_t):
     read = load_read_data(directory)
-    atc_read_cnt_nn = article_processing(read)
+    atc_read_cnt_nn = article_processing_atc_read_cnt(read)
     art_read_cnt_morethan_10 = atc_read_cnt_nn[atc_read_cnt_nn['read_cnt'] > 10]
     article_vocab_list = art_read_cnt_morethan_10['article_id'].tolist()
     atc_read_cnt_lessthan_10 = atc_read_cnt_nn[atc_read_cnt_nn['read_cnt'] <= 10]
@@ -110,7 +121,7 @@ def make_dict(article_by_user_t):
     with open(directory + 'id_to_word_recent.json','w') as f:
         json.dump(id_to_word,f)
 
-def make_corpus( article_by_user_t):
+def make_corpus(article_by_user_t):
     
 
     with open(directory + 'word_to_id_recent.json') as f:
@@ -195,6 +206,10 @@ def train(article_by_user, article_by_user_t):
 
     np.random.seed(1)
     tf.set_random_seed(1)
+
+    with open(directory + 'id_to_word_recent.json') as f:
+        id_to_word = json.load(f)
+
     vocabulary_size =(len(id_to_word)) ################################################# 수정해주기!!
     batch_size = 128        # 일반적으로 16 <= batch_size <= 512
     embedding_size = 128    # embedding vector 크기
@@ -238,11 +253,11 @@ def train(article_by_user, article_by_user_t):
     similarity = tf.matmul(valid_embeddings, normalized_embeddings, transpose_b=True)
     
     # train
-    data, word_to_id, id_to_word = make_corpus()
+    data, word_to_id, id_to_word = make_corpus(article_by_user_t)
     
     start_time = time.time()
     num_steps = 500001
-    data = make_corpus()
+    #data = make_corpus()
     ordered_words = list(word_to_id.keys())
     with tf.Session() as session:
         session.run(tf.global_variables_initializer())
