@@ -27,13 +27,13 @@ def article_processing_atc_read_cnt(read):
     atc['reg_dt'] = atc['reg_datetime'].dt.date
     atc['type'] = atc['magazine_id'].apply(lambda x : '개인' if x == 0.0 else '매거진')
     # 컬럼명 변경
-    atc.columns = ['id', 'display_url', 'article_id', 'keyword_list', 'magazine_id', 'reg_ts', 'sub_title', 'title', 'author_id', 'reg_datetime', 'reg_dt', 'type']
+    atc = atc.rename(columns = {"article_id" : "id", "id" : "article_id","user_id":"author_id"})
     atc.head()
     atc_cnt_by_reg_dt = atc.groupby('reg_dt', as_index=False)['article_id'].count()
 
     atc_read_cnt = read_raw[read_raw.article_id != ''].groupby('article_id')['user_id'].count()
     atc_read_cnt = atc_read_cnt.reset_index()
-    atc_read_cnt.columns = ['article_id', 'read_cnt']
+    atc_read_cnt = atc_read_cnt.rename(columns = {"user_id" : "read_cnt"})
     #metadata 결합
     atc_read_cnt = pd.merge(atc_read_cnt, atc, how='left', left_on='article_id', right_on='article_id')
     # metadata를 찾을 수 없는 소비 로그 제외
