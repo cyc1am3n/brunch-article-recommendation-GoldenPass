@@ -103,13 +103,12 @@ def article_processing(read):
     atc['reg_dt'] = atc['reg_datetime'].dt.date
     atc['type'] = atc['magazine_id'].apply(lambda x: '개인' if x == 0.0 else '매거진')
     # 컬럼명 변경
-    atc.columns = ['id', 'display_url', 'article_id', 'keyword_list', 'magazine_id', 'reg_ts', 'sub_title', 'title',
-                   'author_id', 'reg_datetime', 'reg_dt', 'type']
+    atc = atc.rename(columns = {"article_id" : "id", "id" : "article_id","user_id":"author_id"})
     atc.head()
     atc_cnt_by_reg_dt = atc.groupby('reg_dt', as_index=False)['article_id'].count()
     atc_read_cnt = read_raw[read_raw.article_id != ''].groupby('article_id')['user_id'].count()
     atc_read_cnt = atc_read_cnt.reset_index()
-    atc_read_cnt.columns = ['article_id', 'read_cnt']
+    atc_read_cnt = atc_read_cnt.rename(columns = {"user_id" : "read_cnt"})
     # metadata 결합
     atc_read_cnt = pd.merge(atc_read_cnt, atc, how='left', left_on='article_id', right_on='article_id')
     # metadata를 찾을 수 없는 소비 로그 제외
@@ -118,10 +117,8 @@ def article_processing(read):
     atc_read_cnt_nn['class'] = atc_read_cnt_nn['read_cnt'].map(get_class)
 
     off_data = pd.merge(read_raw, atc, how='inner', left_on='article_id', right_on='article_id')
-    off_data.columns = ['read_dt', 'hr', 'user_id', 'article_id', 'article_seq', 'display_url',
-                        'keyword_list', 'magazine_id', 'reg_ts', 'sub_title', 'title',
-                        'author_id', 'reg_datetime', 'reg_dt', 'type']
-
+    off_data = off_data.rename(columns = {"dt" : "read_dt"})
+    
     off_data = off_data[['read_dt', 'user_id', 'article_id', 'title', 'sub_title', 'author_id',
                          'reg_dt', 'type', 'display_url', 'keyword_list', 'magazine_id']]
     off_data['read_dt'] = pd.to_datetime(off_data['read_dt'], format='%Y%m%d')
@@ -152,7 +149,7 @@ def article_processing(read):
     FEB_read_raw = read_raw[read_raw['dt'] >= '20190214']
     FEB_atc_read_cnt = FEB_read_raw[FEB_read_raw.article_id != ''].groupby('article_id')['user_id'].count()
     FEB_atc_read_cnt = FEB_atc_read_cnt.reset_index()
-    FEB_atc_read_cnt.columns = ['article_id', 'read_cnt']
+    FEB_atc_read_cnt = FEB_atc_read_cnt.rename(columns = {"user_id" : "read_cnt"})
     FEB_atc_read_cnt = pd.merge(FEB_atc_read_cnt, atc, how='left', left_on='article_id', right_on='article_id')
     # metadata를 찾을 수 없는 소비 로그 제외
     FEB_atc_read_cnt_nn = FEB_atc_read_cnt[FEB_atc_read_cnt['id'].notnull()]
